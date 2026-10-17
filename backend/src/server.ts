@@ -1,0 +1,1 @@
+const message: string = "Kasit Archive Backend";
