@@ -9,6 +9,10 @@ export default function PerfectFocusKasitArchivePage() {
   const [roleTab, setRoleTab] = useState<'faculty' | 'student'>('faculty');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
+
   useEffect(() => {
     setMounted(true);
     const token = localStorage.getItem('authToken');
@@ -42,12 +46,34 @@ export default function PerfectFocusKasitArchivePage() {
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
+    setErrorMessage('');
+
+    // 1. التحقق من البريد الجامعي الرسمي @ju.edu.jo
+    const juEmailRegex = /^[a-zA-Z0-9._%+-]+@ju\.edu\.jo$/i;
+    if (!juEmailRegex.test(email.trim())) {
+      setErrorMessage(isRtl ? 'عذراً، يجب استخدام البريد الجامعي الرسمي (@ju.edu.jo)' : 'Error: Must use formal @ju.edu.jo email');
+      return;
+    }
+
+    // 2. التحقق من دور المستخدم (Admin vs User)
+    const isAdmin = email.toLowerCase().includes('admin') || roleTab === 'faculty';
+    
     localStorage.setItem('authToken', 'kasit-user-token');
-    window.location.href = '/dashboard';
+    localStorage.setItem('userEmail', email.trim().toLowerCase());
+    localStorage.setItem('userRole', isAdmin ? 'admin' : 'user');
+
+    // 3. التوجيه الذكي (المستخدم العادي إلى لوحة التحكم /dashboard، والأدمن إلى /admin)
+    if (isAdmin) {
+      window.location.href = '/admin';
+    } else {
+      window.location.href = '/dashboard';
+    }
   };
 
   const handleLogout = () => {
     localStorage.removeItem('authToken');
+    localStorage.removeItem('userRole');
+    localStorage.removeItem('userEmail');
     setIsLoggedIn(false);
   };
 
@@ -69,7 +95,6 @@ export default function PerfectFocusKasitArchivePage() {
       transition: 'all 0.3s ease'
     }}>
 
-      {/* استدعاء خطوط وتأثير التوهج الأزرق عند التركيز الضوئي (Focus Ring) */}
       <style jsx global>{`
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap');
         
@@ -84,7 +109,6 @@ export default function PerfectFocusKasitArchivePage() {
           color: ${isDark ? '#64748b' : '#94a3b8'} !important;
         }
 
-        /* التأثير الأزرق الفخم والتوهج الناعم عند الضغط بالمؤشر داخل الخانة */
         input:focus {
           border-color: #2563eb !important;
           box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.25) !important;
@@ -92,7 +116,7 @@ export default function PerfectFocusKasitArchivePage() {
         }
       `}</style>
 
-      {/* 1. خلفية المبنى */}
+      {/* خلفية المبنى */}
       <div style={{
         position: 'absolute',
         top: 0, left: 0, right: 0, bottom: 0,
@@ -113,7 +137,7 @@ export default function PerfectFocusKasitArchivePage() {
         transition: 'all 0.3s ease'
       }} />
 
-      {/* 2. الشريط العلوي (Header) */}
+      {/* الشريط العلوي */}
       <header style={{
         position: 'relative',
         zIndex: 10,
@@ -150,18 +174,14 @@ export default function PerfectFocusKasitArchivePage() {
         <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
           <button 
             onClick={() => setTheme(t => t === 'dark' ? 'light' : 'dark')}
-            title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
             style={{
               padding: '6px 12px', borderRadius: '8px',
               backgroundColor: styleConfig.inputBg,
               border: `1px solid ${styleConfig.inputBorder}`, 
               color: styleConfig.textPrimary,
-              fontSize: '12px', fontWeight: '700', cursor: 'pointer',
-              display: 'flex', alignItems: 'center', gap: '6px',
-              transition: 'all 0.2s ease'
+              fontSize: '12px', fontWeight: '700', cursor: 'pointer'
             }}
           >
-           
             <span>{isDark ? (isRtl ? 'فاتح' : 'Light') : (isRtl ? 'داكن' : 'Dark')}</span>
           </button>
 
@@ -200,13 +220,13 @@ export default function PerfectFocusKasitArchivePage() {
         </div>
       </header>
 
-      {/* 3. الجسم الرئيسي */}
+      {/* الجسم الرئيسي */}
       <main style={{
         position: 'relative',
         zIndex: 10,
         flex: 1,
         display: 'grid',
-        gridTemplateColumns: '1fr 370px',
+        gridTemplateColumns: '1fr 390px',
         alignItems: 'center',
         padding: '0 60px',
         gap: '48px',
@@ -245,6 +265,7 @@ export default function PerfectFocusKasitArchivePage() {
           </p>
         </div>
 
+        {/* نموذج تسجيل الدخول */}
         <div style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
           <div style={{
             width: '100%',
@@ -290,14 +311,32 @@ export default function PerfectFocusKasitArchivePage() {
             </div>
 
             <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              
+              {errorMessage && (
+                <div style={{
+                  backgroundColor: 'rgba(239, 68, 68, 0.15)',
+                  border: '1px solid #ef4444',
+                  color: '#fca5a5',
+                  padding: '8px 10px',
+                  borderRadius: '8px',
+                  fontSize: '11px',
+                  fontWeight: '700',
+                  textAlign: 'center'
+                }}>
+                  ⚠️ {errorMessage}
+                </div>
+              )}
+
               <div>
                 <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: styleConfig.textSecondary, marginBottom: '3px' }}>
-                  {isRtl ? 'اسم المستخدم أو الرقم الوظيفي' : 'Username / ID'}
+                  {isRtl ? 'البريد الإلكتروني الجامعي الرسمي (@ju.edu.jo)' : 'Official Email (@ju.edu.jo)'}
                 </label>
                 <input 
-                  type="text" 
+                  type="email" 
                   required
-                  placeholder={isRtl ? 'أدخل الرقم الوظيفي' : 'Enter ID'} 
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="m.khawatreh@ju.edu.jo" 
                   style={{
                     width: '100%', padding: '9px 12px', borderRadius: '8px', backgroundColor: styleConfig.inputBg,
                     border: `1px solid ${styleConfig.inputBorder}`, color: styleConfig.textPrimary, fontSize: '13px', outline: 'none', fontWeight: '600',
@@ -313,6 +352,8 @@ export default function PerfectFocusKasitArchivePage() {
                 <input 
                   type="password" 
                   required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••" 
                   style={{
                     width: '100%', padding: '9px 12px', borderRadius: '8px', backgroundColor: styleConfig.inputBg,
@@ -342,7 +383,7 @@ export default function PerfectFocusKasitArchivePage() {
 
       </main>
 
-      {/* 4. الفوتر (Footer) */}
+      {/* الفوتر */}
       <footer style={{
         position: 'relative',
         zIndex: 10,
@@ -373,5 +414,3 @@ export default function PerfectFocusKasitArchivePage() {
     </div>
   );
 }
-
-
