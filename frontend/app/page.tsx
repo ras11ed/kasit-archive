@@ -7,7 +7,6 @@ export default function PerfectFocusKasitArchivePage() {
   const [lang, setLang] = useState<'ar' | 'en'>('en');
   const [theme, setTheme] = useState<'dark' | 'light'>('light');
   const [roleTab, setRoleTab] = useState<'faculty' | 'student'>('faculty');
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -15,8 +14,6 @@ export default function PerfectFocusKasitArchivePage() {
 
   useEffect(() => {
     setMounted(true);
-    const token = localStorage.getItem('authToken');
-    if (token) setIsLoggedIn(true);
   }, []);
 
   if (!mounted) return null;
@@ -62,19 +59,12 @@ export default function PerfectFocusKasitArchivePage() {
     localStorage.setItem('userEmail', email.trim().toLowerCase());
     localStorage.setItem('userRole', isAdmin ? 'admin' : 'user');
 
-    // 3. التوجيه الذكي (المستخدم العادي إلى لوحة التحكم /dashboard، والأدمن إلى /admin)
+    // 3. التوجيه الذكي
     if (isAdmin) {
       window.location.href = '/admin';
     } else {
       window.location.href = '/dashboard';
     }
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem('authToken');
-    localStorage.removeItem('userRole');
-    localStorage.removeItem('userEmail');
-    setIsLoggedIn(false);
   };
 
   return (
@@ -197,26 +187,6 @@ export default function PerfectFocusKasitArchivePage() {
           >
             {isRtl ? 'English' : 'العربية'}
           </button>
-
-          {isLoggedIn && (
-            <>
-              <Link href="/dashboard" style={{
-                padding: '6px 16px', borderRadius: '8px', backgroundColor: styleConfig.primaryBlue, color: '#fff',
-                fontSize: '12px', fontWeight: '800', textDecoration: 'none', boxShadow: '0 4px 12px rgba(37, 99, 235, 0.25)'
-              }}>
-                {isRtl ? 'لوحة التحكم' : 'Dashboard'}
-              </Link>
-              <button 
-                onClick={handleLogout}
-                style={{
-                  padding: '6px 12px', borderRadius: '8px', backgroundColor: '#ef4444', color: '#fff',
-                  fontSize: '12px', fontWeight: '700', border: 'none', cursor: 'pointer'
-                }}
-              >
-                {isRtl ? 'خروج' : 'Sign Out'}
-              </button>
-            </>
-          )}
         </div>
       </header>
 
