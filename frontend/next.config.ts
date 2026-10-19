@@ -1,12 +1,6 @@
 import type { NextConfig } from "next";
 
-<<<<<<< HEAD
-const nextConfig: NextConfig = {};
-
-export default nextConfig;
-=======
 const nextConfig: NextConfig = {
-  /* config options here */
   experimental: {
     agentFeedback: true,
   },
@@ -23,4 +17,3 @@ const nextConfig: NextConfig = {
 };
 
 export default nextConfig;
->>>>>>> origin/feature/upload
