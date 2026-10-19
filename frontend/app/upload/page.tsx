@@ -46,6 +46,32 @@ export default function CleanUploadKasitArchivePage() {
     setShowResults(false);
   };
 
+  const handleUpload = async (file: File) => {
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const response = await fetch('/api/documents/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        alert('تم رفع الملف بنجاح إلى النظام!');
+        console.log('Upload success:', data);
+      } else {
+        alert(`فشل الرفع: ${data.error || 'حدث خطأ أثناء الرفع'}`);
+      }
+    } catch (error) {
+      console.error('Error uploading file:', error);
+      alert('تعذر الاتصال بالخادم، تأكد من تشغيل الـ Backend');
+    }
+  };
+
   return (
     <div style={{
       minHeight: '100vh',
@@ -290,7 +316,9 @@ export default function CleanUploadKasitArchivePage() {
               <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: styleConfig.textSecondary, marginBottom: '6px' }}>
                 {isRtl ? 'إرفاق ملف المستند (PDF)' : 'Attach Document (PDF)'}
               </label>
-              <div style={{
+              
+              <label style={{
+                display: 'block',
                 border: `2px dashed ${styleConfig.primaryBlue}`,
                 borderRadius: '12px',
                 padding: '24px 16px',
@@ -299,20 +327,30 @@ export default function CleanUploadKasitArchivePage() {
                 cursor: 'pointer',
                 transition: 'all 0.2s ease'
               }}>
+                <input 
+                  type="file" 
+                  accept=".pdf,.doc,.docx"
+                  style={{ display: 'none' }}
+                  onChange={(e) => {
+                    const selectedFile = e.target.files?.[0];
+                    if (selectedFile) {
+                      handleUpload(selectedFile);
+                    }
+                  }} 
+                />
                 <div style={{ fontSize: '13px', fontWeight: '800', color: styleConfig.primaryBlue, marginBottom: '4px' }}>
                   {isRtl ? 'اسحب ملف الـ PDF هنا أو انقر للاختيار' : 'Drag & Drop PDF file here or click to browse'}
                 </div>
                 <div style={{ fontSize: '11px', color: styleConfig.textSecondary, fontWeight: '600' }}>
                   {isRtl ? 'يدعم ملفات الخطط، التعديلات، ومحاضر الاجتماعات الرسمية' : 'Supports official plans, updates, and meeting minutes'}
                 </div>
-              </div>
+              </label>
             </div>
 
           </div>
 
         </form>
 
-        {/* 3. شريط نتائج الاستخراج مع ربط زر التأكيد بصفحة المعاينة /document */}
         {showResults && (
           <div style={{
             backgroundColor: styleConfig.cardBg,
@@ -339,7 +377,6 @@ export default function CleanUploadKasitArchivePage() {
               </div>
             </div>
 
-            {/* أزرار الإلغاء والتأكيد المربوطة بصفحة /document */}
             <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
               <button 
                 type="button"
@@ -355,7 +392,7 @@ export default function CleanUploadKasitArchivePage() {
 
               <button 
                 type="button"
-                onClick={() => window.location.href = '/document'} // <-- الربط المباشر بصفحة المعاينة والتفاصيل
+                onClick={() => window.location.href = '/document'}
                 style={{
                   padding: '10px 20px', borderRadius: '8px', backgroundColor: '#10b981', color: '#fff',
                   fontSize: '12px', fontWeight: '800', border: 'none', cursor: 'pointer',

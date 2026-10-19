@@ -1,80 +1,82 @@
-@"
-# KASIT ARCHIVE
+KASIT ARCHIVE
 
-KASIT ARCHIVE is an AI-powered academic document archiving and quality intelligence platform designed for managing, indexing, searching, and analyzing academic documents using AI and Retrieval-Augmented Generation (RAG).
 
-## Project Structure
 
-- `frontend/` — Web application and user interface
-- `backend/` — Server-side logic and APIs
-- `ai/` — Document processing, embeddings, RAG, LLM, and AI Agent components
-- `database/` — Database schemas, migrations, and database-related configuration
-- `docs/` — Project documentation
-- `tests/` — Automated tests
-- `docker/` — Docker and development environment configuration
+KASIT ARCHIVE is an AI-powered academic document archiving and quality intelligence platform.
 
-## Technology Stack
 
-### Web Application
 
-- Next.js
-- React
-- TypeScript
+\## Project Structure
 
-### Backend
 
-- Next.js Server-Side APIs / Route Handlers
-- Server-side business logic
-- REST APIs
 
-### Authentication & Authorization
+\- `frontend/` — Web application and user interface
 
-- Auth0
-- Role-Based Access Control (RBAC)
-- User and group permissions
+\- `backend/` — Backend API and business logic
 
-### Database
+\- `ai/` — OCR, document processing, embeddings, RAG, and LLM components
 
-- Neon PostgreSQL
-- Document metadata
-- Users and permissions
-- Document processing status
-- Indexed document data
-- Vector embeddings
+\- `database/` — Database schemas and migrations
 
-### Storage
+\- `docs/` — Project documentation
 
-- File Storage Bucket
-- Original uploaded documents
-- Document files and related assets
+\- `tests/` — Automated tests
 
-### AI
+\- `docker/` — Docker-related configuration
 
-- AI SDK
-- AI Agent
-- OCR
-- Text Extraction
-- Document Processing
-- Embeddings
-- Semantic Search
-- Retrieval-Augmented Generation (RAG)
-- Large Language Models (LLMs)
 
-### Core Workflow
 
-```text
-User Upload
-    ↓
-Storage Bucket
-    ↓
-Document Processing
-    ↓
-Text Extraction / OCR
-    ↓
-Chunking
-    ↓
-Embeddings
-    ↓
-Indexed Document
-    ↓
-Database
+\## Technology Stack
+
+
+
+\### Frontend
+
+\- React / Next.js
+
+
+
+\### Backend
+
+\- Python
+
+\- FastAPI
+
+\- SQLAlchemy
+
+\- Pydantic
+
+
+
+\### Database
+
+\- PostgreSQL
+
+\- pgvector
+
+
+
+\### AI
+
+\- OCR
+
+\- Text Extraction
+
+\- Embeddings
+
+\- Semantic Search
+
+\- RAG
+
+\- LLM
+
+
+
+\### Infrastructure
+
+\- Docker
+
+\- Docker Compose
+
+\- WSL 2
+
