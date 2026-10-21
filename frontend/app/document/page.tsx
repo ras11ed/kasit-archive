@@ -1,6 +1,8 @@
 'use client';
+
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Swal from 'sweetalert2';
 
 export default function DocumentPreviewPage() {
   const [mounted, setMounted] = useState(false);
@@ -21,6 +23,7 @@ export default function DocumentPreviewPage() {
     cardBg: isDark ? '#151e32' : '#ffffff',
     itemBg: isDark ? '#1e293b' : '#f1f5f9',
     cardBorder: isDark ? '1px solid #1e293b' : '1px solid #e2e8f0',
+    inputBorder: isDark ? '#334155' : '#cbd5e1',
     textPrimary: isDark ? '#f8fafc' : '#0f172a',
     textSecondary: isDark ? '#94a3b8' : '#475569',
     primaryBlue: '#2563eb',
@@ -28,6 +31,53 @@ export default function DocumentPreviewPage() {
     shadow: isDark
       ? '0 10px 30px rgba(0, 0, 0, 0.4)'
       : '0 4px 20px rgba(0, 0, 0, 0.04)'
+  };
+
+  // دالة التعامل مع التنبيه التفاعلي للحفظ والأرشفة (SweetAlert2)
+  const handleConfirmArchive = async () => {
+    // 1. نافذة التأكيد (funx)
+    const result = await Swal.fire({
+      title: isRtl ? 'تأكيد الأرشفة' : 'Confirm Archiving',
+      text: isRtl ? 'هل أنت متأكد من حفظ وتخزين هذا المستند في الأرشيف النهائي؟' : 'Are you sure you want to save and archive this document?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: isRtl ? 'نعم، حفظ المستند' : 'Yes, Save Document',
+      cancelButtonText: isRtl ? 'إلغاء' : 'Cancel',
+      confirmButtonColor: styleConfig.successGreen,
+      cancelButtonColor: '#6c757d',
+      background: styleConfig.cardBg,
+      color: styleConfig.textPrimary,
+      reverseButtons: isRtl
+    });
+
+    if (result.isConfirmed) {
+      // 2. نافذة الانتظار والتحميل (funy)
+      Swal.fire({
+        title: isRtl ? 'الرجاء الانتظار' : 'Please wait',
+        text: isRtl ? 'جاري أرشفة البيانات في قاعدة البيانات...' : 'Saving data to database...',
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        showConfirmButton: false,
+        background: styleConfig.cardBg,
+        color: styleConfig.textPrimary,
+        didOpen: () => {
+          Swal.showLoading();
+        }
+      });
+
+      // لمحاكاة حفظ البيانات في الباك إند (يمكنك ربطها بـ fetch لاحقاً)
+      setTimeout(() => {
+        Swal.fire({
+          title: isRtl ? 'تمت الأرشفة بنجاح!' : 'Archived Successfully!',
+          text: isRtl ? 'تمت أرشفة وتخزين المستند في قاعدة البيانات بنجاح' : 'Document has been saved to database successfully',
+          icon: 'success',
+          confirmButtonText: isRtl ? 'حسناً' : 'OK',
+          confirmButtonColor: styleConfig.primaryBlue,
+          background: styleConfig.cardBg,
+          color: styleConfig.textPrimary
+        });
+      }, 1200);
+    }
   };
 
   return (
@@ -181,7 +231,7 @@ export default function DocumentPreviewPage() {
             </div>
 
             <button 
-              onClick={() => alert('تمت الأرشفة وتخزين المستند في قاعدة البيانات بنجاح!')}
+              onClick={handleConfirmArchive}
               style={{
                 width: '100%', padding: '12px', borderRadius: '8px', backgroundColor: styleConfig.successGreen, color: '#fff',
                 fontSize: '13px', fontWeight: '800', border: 'none', cursor: 'pointer', marginTop: '12px',
@@ -213,7 +263,7 @@ export default function DocumentPreviewPage() {
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
-              justifyContent: 'center',
+              justifyContent: 'space-between',
               backgroundColor: styleConfig.itemBg,
               padding: '20px',
               textAlign: 'center'
@@ -238,7 +288,7 @@ export default function DocumentPreviewPage() {
         backgroundColor: styleConfig.cardBg,
         borderTop: styleConfig.cardBorder,
         display: 'flex',
-        justifyContent: 'space-between',
+       justifyContent: 'space-between',
         alignItems: 'center',
         fontSize: '11px',
         color: styleConfig.textSecondary

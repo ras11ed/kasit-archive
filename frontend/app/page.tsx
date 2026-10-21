@@ -6,7 +6,7 @@ export default function PerfectFocusKasitArchivePage() {
   const [mounted, setMounted] = useState(false);
   const [lang, setLang] = useState<'ar' | 'en'>('en');
   const [theme, setTheme] = useState<'dark' | 'light'>('light');
-  const [roleTab, setRoleTab] = useState<'faculty' | 'student'>('faculty');
+  const [roleTab, setRoleTab] = useState<'faculty' | 'user'>('faculty');
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -268,15 +268,15 @@ export default function PerfectFocusKasitArchivePage() {
                 {isRtl ? 'هيئة التدريس / الإدارة' : 'Faculty / Admin'}
               </button>
               <button 
-                onClick={() => setRoleTab('student')}
+                onClick={() => setRoleTab('user')}
                 style={{
                   flex: 1, padding: '6px', borderRadius: '6px', fontSize: '11px', fontWeight: '800', cursor: 'pointer', border: 'none',
-                  backgroundColor: roleTab === 'student' ? styleConfig.primaryBlue : 'transparent',
-                  color: roleTab === 'student' ? '#fff' : styleConfig.textSecondary,
+                  backgroundColor: roleTab === 'user' ? styleConfig.primaryBlue : 'transparent',
+                  color: roleTab === 'user' ? '#fff' : styleConfig.textSecondary,
                   transition: 'all 0.2s ease'
                 }}
               >
-                {isRtl ? 'الطلبة والمستخدمون' : 'Students'}
+                {isRtl ? 'مستخدم عادي' : 'user'}
               </button>
             </div>
 

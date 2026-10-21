@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Swal from 'sweetalert2'; // استدعاء مكتبة SweetAlert2
 
 export default function CleanUploadKasitArchivePage() {
   const [mounted, setMounted] = useState(false);
@@ -8,6 +9,9 @@ export default function CleanUploadKasitArchivePage() {
   const [theme, setTheme] = useState<'dark' | 'light'>('light');
   const [isProcessing, setIsProcessing] = useState(false);
   const [showResults, setShowResults] = useState(false);
+  const [selectedDocType, setSelectedDocType] = useState('الاعتماد الوطني الأردني (معايير HEAC)');
+  
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
 
   useEffect(() => {
     setMounted(true);
@@ -35,6 +39,21 @@ export default function CleanUploadKasitArchivePage() {
 
   const handleProcess = (e: React.FormEvent) => {
     e.preventDefault();
+
+    // التحقق من إرفاق الملف باستخدام SweetAlert2
+    if (!uploadedFile) {
+      Swal.fire({
+        icon: 'warning',
+        title: isRtl ? 'تنبيه هام' : 'Warning',
+        text: isRtl ? 'يرجى إرفاق ملف الـ PDF أولاً لبدء المعالجة والأرشفة!' : 'Please attach a PDF file first!',
+        confirmButtonText: 'حسناً',
+        confirmButtonColor: '#2563eb',
+        background: isDark ? '#151e32' : '#fff',
+        color: isDark ? '#f8fafc' : '#0f172a'
+      });
+      return;
+    }
+
     setIsProcessing(true);
     setTimeout(() => {
       setIsProcessing(false);
@@ -61,14 +80,36 @@ export default function CleanUploadKasitArchivePage() {
       const data = await response.json();
 
       if (response.ok) {
-        alert('تم رفع الملف بنجاح إلى النظام!');
+        Swal.fire({
+          icon: 'success',
+          title: isRtl ? 'تم الرفع بنجاح' : 'Success',
+          text: isRtl ? 'تم رفع الملف بنجاح إلى النظام!' : 'File uploaded successfully!',
+          timer: 1500,
+          showConfirmButton: false,
+          background: isDark ? '#151e32' : '#fff',
+          color: isDark ? '#f8fafc' : '#0f172a'
+        });
         console.log('Upload success:', data);
       } else {
-        alert(`فشل الرفع: ${data.error || 'حدث خطأ أثناء الرفع'}`);
+        Swal.fire({
+          icon: 'error',
+          title: isRtl ? 'خطأ في الرفع' : 'Upload Failed',
+          text: data.error || (isRtl ? 'حدث خطأ أثناء الرفع' : 'An error occurred'),
+          confirmButtonColor: '#ef4444',
+          background: isDark ? '#151e32' : '#fff',
+          color: isDark ? '#f8fafc' : '#0f172a'
+        });
       }
     } catch (error) {
       console.error('Error uploading file:', error);
-      alert('تعذر الاتصال بالخادم، تأكد من تشغيل الـ Backend');
+      Swal.fire({
+        icon: 'error',
+        title: isRtl ? 'خطأ في الاتصال' : 'Connection Error',
+        text: isRtl ? 'تعذر الاتصال بالخادم، تأكد من تشغيل الـ Backend' : 'Server connection failed',
+        confirmButtonColor: '#ef4444',
+        background: isDark ? '#151e32' : '#fff',
+        color: isDark ? '#f8fafc' : '#0f172a'
+      });
     }
   };
 
@@ -91,7 +132,7 @@ export default function CleanUploadKasitArchivePage() {
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap');
       `}</style>
 
-      {/* 1. الشريط العلوي (Header) */}
+      {/* الشريط العلوي */}
       <header style={{
         padding: '14px 48px',
         display: 'flex',
@@ -120,7 +161,6 @@ export default function CleanUploadKasitArchivePage() {
           </div>
         </div>
 
-        {/* أزرار التحكم */}
         <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
           <button 
             onClick={() => setTheme(t => t === 'dark' ? 'light' : 'dark')}
@@ -155,7 +195,7 @@ export default function CleanUploadKasitArchivePage() {
         </div>
       </header>
 
-      {/* 2. جسم صفحة الرفع */}
+      {/* محتوى الصفحة */}
       <main style={{
         flex: 1,
         padding: '32px 48px',
@@ -174,6 +214,18 @@ export default function CleanUploadKasitArchivePage() {
           <p style={{ fontSize: '13px', color: styleConfig.textSecondary, fontWeight: '600', margin: 0 }}>
             {isRtl ? 'إدخال بيانات المستند وتصنيفات الاعتماد للتحليل والأرشفة الآلية' : 'Enter document data and accreditation metrics for automated indexing'}
           </p>
+
+          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '16px', marginTop: '16px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px', fontWeight: '800', color: styleConfig.primaryBlue }}>
+              <span style={{ width: '24px', height: '24px', borderRadius: '50%', backgroundColor: styleConfig.primaryBlue, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px' }}>1</span>
+              {isRtl ? 'تعبئة البيانات وإرفاق الملف' : 'Fill Details & Upload'}
+            </div>
+            <div style={{ width: '40px', height: '2px', backgroundColor: showResults ? styleConfig.primaryBlue : (isDark ? '#334155' : '#cbd5e1') }}></div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px', fontWeight: '800', color: showResults ? '#10b981' : styleConfig.textSecondary }}>
+              <span style={{ width: '24px', height: '24px', borderRadius: '50%', backgroundColor: showResults ? '#10b981' : styleConfig.itemBg, color: showResults ? '#fff' : styleConfig.textSecondary, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px' }}>2</span>
+              {isRtl ? 'معالجة الـ AI وتأكيد الأرشفة' : 'AI Analysis & Confirmation'}
+            </div>
+          </div>
         </div>
 
         <form onSubmit={handleProcess} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
@@ -257,9 +309,9 @@ export default function CleanUploadKasitArchivePage() {
             <button type="submit" disabled={isProcessing} style={{
               width: '100%', padding: '12px', borderRadius: '8px', backgroundColor: styleConfig.primaryBlue, color: '#fff',
               fontSize: '13px', fontWeight: '800', border: 'none', cursor: 'pointer', marginTop: '8px',
-              boxShadow: '0 4px 14px rgba(37, 99, 235, 0.25)'
+              boxShadow: '0 4px 14px rgba(37, 99, 235, 0.25)', transition: 'all 0.2s ease'
             }}>
-              {isProcessing ? (isRtl ? 'جاري معالجة المستند...' : 'Processing...') : (isRtl ? 'بدء المعالجة والأرشفة ←' : 'Start Processing →')}
+              {isProcessing ? (isRtl ? 'جاري معالجة المستند بواسطة الـ AI...' : 'Processing Document...') : (isRtl ? 'بدء المعالجة والأرشفة ←' : 'Start Processing →')}
             </button>
           </div>
 
@@ -279,14 +331,18 @@ export default function CleanUploadKasitArchivePage() {
               <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: styleConfig.textSecondary, marginBottom: '4px' }}>
                 {isRtl ? 'نوع المستند الأكاديمي' : 'Document Type'}
               </label>
-              <select style={{
-                width: '100%', padding: '9px 12px', borderRadius: '8px', backgroundColor: styleConfig.inputBg,
-                border: `1px solid ${styleConfig.inputBorder}`, color: styleConfig.textPrimary, fontSize: '12px', outline: 'none', fontWeight: '600'
-              }}>
-                <option>{isRtl ? 'الاعتماد الوطني الأردني (معايير HEAC)' : 'HEAC Accreditation'}</option>
-                <option>{isRtl ? 'الاعتماد الدولي (معايير ABET)' : 'ABET Accreditation'}</option>
-                <option>{isRtl ? 'محضر اجتماع مجلس قسم' : 'Department Council Minutes'}</option>
-                <option>{isRtl ? 'تحديث خطة دراسية' : 'Study Plan Update'}</option>
+              <select 
+                value={selectedDocType}
+                onChange={(e) => setSelectedDocType(e.target.value)}
+                style={{
+                  width: '100%', padding: '9px 12px', borderRadius: '8px', backgroundColor: styleConfig.inputBg,
+                  border: `1px solid ${styleConfig.inputBorder}`, color: styleConfig.textPrimary, fontSize: '12px', outline: 'none', fontWeight: '600'
+                }}
+              >
+                <option value="الاعتماد الوطني الأردني (معايير HEAC)">{isRtl ? 'الاعتماد الوطني الأردني (معايير HEAC)' : 'HEAC Accreditation'}</option>
+                <option value="الاعتماد الدولي (معايير ABET)">{isRtl ? 'الاعتماد الدولي (معايير ABET)' : 'ABET Accreditation'}</option>
+                <option value="محضر اجتماع مجلس قسم">{isRtl ? 'محضر اجتماع مجلس قسم' : 'Department Council Minutes'}</option>
+                <option value="تحديث خطة دراسية">{isRtl ? 'تحديث خطة دراسية' : 'Study Plan Update'}</option>
               </select>
             </div>
 
@@ -319,11 +375,13 @@ export default function CleanUploadKasitArchivePage() {
               
               <label style={{
                 display: 'block',
-                border: `2px dashed ${styleConfig.primaryBlue}`,
+                border: uploadedFile ? '2px dashed #10b981' : `2px dashed ${styleConfig.primaryBlue}`,
                 borderRadius: '12px',
                 padding: '24px 16px',
                 textAlign: 'center',
-                backgroundColor: isDark ? 'rgba(37, 99, 235, 0.05)' : '#eff6ff',
+                backgroundColor: uploadedFile 
+                  ? (isDark ? 'rgba(16, 185, 129, 0.08)' : '#f0fdf4')
+                  : (isDark ? 'rgba(37, 99, 235, 0.05)' : '#eff6ff'),
                 cursor: 'pointer',
                 transition: 'all 0.2s ease'
               }}>
@@ -334,15 +392,20 @@ export default function CleanUploadKasitArchivePage() {
                   onChange={(e) => {
                     const selectedFile = e.target.files?.[0];
                     if (selectedFile) {
+                      setUploadedFile(selectedFile);
                       handleUpload(selectedFile);
                     }
                   }} 
                 />
-                <div style={{ fontSize: '13px', fontWeight: '800', color: styleConfig.primaryBlue, marginBottom: '4px' }}>
-                  {isRtl ? 'اسحب ملف الـ PDF هنا أو انقر للاختيار' : 'Drag & Drop PDF file here or click to browse'}
+                <div style={{ fontSize: '13px', fontWeight: '800', color: uploadedFile ? '#10b981' : styleConfig.primaryBlue, marginBottom: '4px' }}>
+                  {uploadedFile 
+                    ? `✓ تم إرفاق الملف: ${uploadedFile.name}` 
+                    : (isRtl ? 'اسحب ملف الـ PDF هنا أو انقر للاختيار' : 'Drag & Drop PDF file here or click to browse')}
                 </div>
                 <div style={{ fontSize: '11px', color: styleConfig.textSecondary, fontWeight: '600' }}>
-                  {isRtl ? 'يدعم ملفات الخطط، التعديلات، ومحاضر الاجتماعات الرسمية' : 'Supports official plans, updates, and meeting minutes'}
+                  {uploadedFile 
+                    ? (isRtl ? 'الملف جاهز الآن للمعالجة والأرشفة' : 'File ready for processing')
+                    : (isRtl ? 'يدعم ملفات الخطط، التعديلات، ومحاضر الاجتماعات الرسمية' : 'Supports official plans, updates, and meeting minutes')}
                 </div>
               </label>
             </div>
@@ -373,7 +436,9 @@ export default function CleanUploadKasitArchivePage() {
                 </span>
               </div>
               <div style={{ fontSize: '12px', color: styleConfig.textSecondary, fontWeight: '600' }}>
-                {isRtl ? 'التصنيف: الاعتماد الوطني الأردني (HEAC) • الموعد النهائي: 01-11-2026 • الحالة: مطابقة كاملة لشروط الجودة' : 'Classification: HEAC • Deadline: 01-11-2026 • Status: Fully Compliant'}
+                {isRtl 
+                  ? `التصنيف: ${selectedDocType} • الموعد النهائي: 01-11-2026 • الحالة: مطابقة كاملة لشروط الجودة`
+                  : `Classification: ${selectedDocType} • Deadline: 01-11-2026 • Status: Fully Compliant`}
               </div>
             </div>
 
@@ -407,7 +472,6 @@ export default function CleanUploadKasitArchivePage() {
 
       </main>
 
-      {/* 4. الفوتر */}
       <footer style={{
         padding: '14px 48px',
         backgroundColor: styleConfig.cardBg,
